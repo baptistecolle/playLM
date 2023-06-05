@@ -1,0 +1,42 @@
+observation: (0, {'prob': 1})
+episode_reward: 0
+=> TIMESTAMP [0]; EPISODE [0]<=
+position: 0
+saved observation: you are in position 0
+get_action_prompt: You are a video game player.This is the current state of the board you are in position 0. You can use the following actions: 'left', 'down', 'right', 'up'. Please output one of the possible actions. If you are unsure, please output an action as you are learning how to use the controllers of this video game. The selected action is: 
+Llama.generate: prefix-match hit
+generated output: {'id': 'cmpl-2c347563-6ae8-4070-974d-7c897da519ec', 'object': 'text_completion', 'created': 1685998439, 'model': '../model/wizardLM-7B.ggmlv3.q4_1.bin', 'choices': [{'text': "You are a video game player.This is the current state of the board you are in position 0. You can use the following actions: 'left', 'down', 'right', 'up'. Please output one of the possible actions. If you are unsure, please output an action as you are learning how to use the controllers of this video game. The selected action is: \n```\nYou have selected the action 'left'\n```", 'index': 0, 'logprobs': None, 'finish_reason': 'stop'}], 'usage': {'prompt_tokens': 80, 'completion_tokens': 13, 'total_tokens': 93}}
+Generated direction: left
+selected action 0
+--------------------
+obs: 0
+reward: 0.0
+terminated: False
+truncated: False
+info: {'prob': 0.3333333333333333}
+--------------------
+=> TIMESTAMP [1]; EPISODE [0]<=
+position: 0
+saved observation: you are in position 0
+get_action_prompt: You are a video game player.This is the current state of the board you are in position 0. You can use the following actions: 'left', 'down', 'right', 'up'. Please output one of the possible actions. If you are unsure, please output an action as you are learning how to use the controllers of this video game. The selected action is: 
+
+Llama.generate: prefix-match hit
+llama_print_timings:        load time = 13483.07 ms
+llama_print_timings:      sample time =    10.39 ms /    14 runs   (    0.74 ms per token)
+llama_print_timings: prompt eval time =     0.00 ms /     1 tokens (    0.00 ms per token)
+llama_print_timings:        eval time = 88550.03 ms /    14 runs   ( 6325.00 ms per token)
+llama_print_timings:       total time = 88699.76 ms
+generated output: {'id': 'cmpl-e565d123-cc79-4f2e-976c-9c5eab045ee7', 'object': 'text_completion', 'created': 1685998528, 'model': '../model/wizardLM-7B.ggmlv3.q4_1.bin', 'choices': [{'text': "You are a video game player.This is the current state of the board you are in position 0. You can use the following actions: 'left', 'down', 'right', 'up'. Please output one of the possible actions. If you are unsure, please output an action as you are learning how to use the controllers of this video game. The selected action is: \nYou have selected the action 'left' to move your player in position 0.", 'index': 0, 'logprobs': None, 'finish_reason': 'stop'}], 'usage': {'prompt_tokens': 80, 'completion_tokens': 18, 'total_tokens': 98}}
+Generated direction: left
+selected action 0
+--------------------
+obs: 0
+reward: 0.0
+terminated: False
+truncated: False
+info: {'prob': 0.3333333333333333}
+--------------------
+=> TIMESTAMP [2]; EPISODE [0]<=
+position: 0
+saved observation: you are in position 0
+get_action_prompt: You are a video game player.This is the current state of the board you are in position 0. You can use the following actions: 'left', 'down', 'right', 'up'. Please output one of the possible actions. If you are unsure, please output an action as you are learning how to use the controllers of this video game. The selected action is: 
