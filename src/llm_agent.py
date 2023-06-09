@@ -1,6 +1,11 @@
 from llama_cpp import Llama
 import torch
 import textwrap
+from termcolor import colored, cprint
+
+print_light_green = lambda x: cprint(x, "light_green")
+print_light_magenta = lambda x: cprint(x, "light_magenta")
+
 
 class LLM_Agent:
 
@@ -23,6 +28,7 @@ class LLM_Agent:
 
         self.character_prompt = """
         You are a human. You are playing a videogame, you are thinking outloud about what you are doing. The game you are playing is a 2D puzzle game with a 4x4 square gridded map. 
+        You cannot go outside the map, this is the map you are playing on and you can only move on the map.
         You are learning a game, you do not know the rules of the game but by playing the game you can learn the rules.
         You should try to explore and always be willing to participate in the game.
         """
@@ -57,13 +63,20 @@ class LLM_Agent:
 
     def get_base_prompt(self):
         return f"""            
-        You are:
         {self.character_prompt}
         You can move in the following directions: {self.text_action_space}. 
         This is the map you are playing on:
         {' '.join(self.map)}
         {self.values}
+        Your starting position is {self.observations[0]}.
         This is your current position in the game {self.observations[-1]}.
+        This is the positions you got ranging from starting position to current position:: 
+        {self.observations}
+        You selected the following actions during your current game:
+        {self.actions_taken}
+        You received the following rewards during your current game: 
+        {self.rewards}
+        
         """
 
     def get_action_prompt(self):
@@ -85,7 +98,7 @@ class LLM_Agent:
         #     If your exploration rate is 100% you will just explore randomly (by choosing a random action), if it is 0% you will just use your insights.
 
 
-        print("action prompt: ", prompt)
+        print_light_green(f"action prompt: {prompt}")
 
         max_logprob = -100
         max_action = None
@@ -128,22 +141,19 @@ class LLM_Agent:
 
     def reflect(self):
 
-        
+
 
         prompt = (
             f"""
             {self.get_base_prompt()}
-            You selected the following actions:
-            {self.actions_taken}.
-            You received the following rewards: 
-            {self.rewards}.
-            This is the positions you got: 
-            {self.observations}.
+            {"You did not move. This is bad" if self.observations[-1] == self.observations[-2] else "" }
+
             Please reflect on why you received the rewards you did.
             Are you going in the right direction?
             If not what direction should you go in?
             Make an answer that is concise and actionable.
             Answer:
+            As a human,
             """
             # (please provide only the direction name, one word) 
            # If you are unsure, please output one of the directions listed before as you are learning how to play
@@ -152,7 +162,7 @@ class LLM_Agent:
         )
 
 
-        print("reflecting prompt: ", prompt)
+        print_light_magenta(f"reflecting prompt: {prompt}")
 
         generation = self.llm(prompt)
         insight = generation["choices"][0]["text"]

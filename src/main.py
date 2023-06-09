@@ -17,15 +17,8 @@ def run_game(env: gym.Env , agent: LLM_Agent, action_space):
 
     for i_episode in range(10):
         observation = env.reset()
-        print(f"observation: {observation}")
-        print()
         position = extract_player_position(env.render())
-        
-        
         agent.save_observation(position)
-
-        episode_reward = 0
-        print(f"episode_reward: {episode_reward}")
 
         # Loop over t timesteps 
         for t in range(20):
@@ -33,23 +26,26 @@ def run_game(env: gym.Env , agent: LLM_Agent, action_space):
             print()
             print_green(f"=> TIMESTAMP [{t}]; EPISODE [{i_episode}]<=")
 
-            position = extract_player_position(env.render())
+
 
             # Set position ot the last index in observations
             print(f"position: {position}")
 
             # Give the LLM some information about the current state of the game
 
-            agent.save_observation(position)
-
             print_red_on_cyan("GENERATING ACTION")
         
             action, action_word = agent.generate_action(debug=True)
+
+
             print(env.render())
 
             # take action
             # Within the game board state
             obs, reward, terminated, truncated, info = env.step(action)
+
+            position = extract_player_position(env.render())
+            agent.save_observation(position)
 
             print_red_on_cyan(f"GENERATED ACTION: {action_word}")
 
