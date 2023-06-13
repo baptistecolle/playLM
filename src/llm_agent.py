@@ -2,6 +2,7 @@ from llama_cpp import Llama
 import torch
 import textwrap
 from termcolor import colored, cprint
+from llm import LLM
 
 print_light_green = lambda x: cprint(x, "light_green")
 print_light_magenta = lambda x: cprint(x, "light_magenta")
@@ -9,8 +10,8 @@ print_light_magenta = lambda x: cprint(x, "light_magenta")
 
 class LLM_Agent:
 
-    def __init__(self):
-        self.llm = Llama(model_path="./model/wizardLM-7B.ggmlv3.q4_1.bin", logits_all=True, verbose=False, n_ctx=2048)
+    def __init__(self, type):
+        self.llm = LLM(type=type)
         #, logits_all=True
 
         # RL specific variables
@@ -100,44 +101,13 @@ class LLM_Agent:
 
         print_light_green(f"action prompt: {prompt}")
 
-        max_logprob = -100
-        max_action = None
-        probs = []
+        generated_action = self.llm.get_next_token_from_set(prompt, self.action_space)
+    
+        self.actions_taken.append(generated_action)
 
-        for action in self.action_space:
-            # print(f"action: {action}")
-            generation = self.llm(f"""{prompt}
-                          {action}
-                          """, logprobs=10, max_tokens=1, echo=True)
-            
-            tokens = generation['choices'][0]['logprobs']['tokens']
-            # print(f"tokens: {tokens}")
-            answer_index = tokens.index(" Answer")
+        
 
-            action_index = tokens.index(f" {action}", answer_index)
-            action_logprob = generation['choices'][0]['logprobs']['token_logprobs'][action_index]
-            
-            action_in_list = tokens[action_index]
-            assert action_in_list == f" {action}", f"action_in_list: {action_in_list}, action: {action}"
-            # print(f"action_logprob: {action_logprob}")
-
-            probs.append(action_logprob)
-            # if (action_logprob > max_logprob):
-            #     max_logprob = action_logprob
-            #     max_action = action
-
-        # print(f"probs: {probs}")
-        probs = torch.nn.Softmax(dim=0)(torch.tensor(probs, dtype=torch.float))
-        # print(f"probs: {probs}")
-        max_action_index = torch.multinomial(probs, 1)
-        max_action = self.action_space[max_action_index]
-
-            
-        assert max_action is not None, "max_action is None" 
-
-        self.actions_taken.append(max_action)
-
-        return max_action
+        return generated_action
 
     def reflect(self):
 
@@ -164,14 +134,13 @@ class LLM_Agent:
 
         print_light_magenta(f"reflecting prompt: {prompt}")
 
-        generation = self.llm(prompt)
-        insight = generation["choices"][0]["text"]
+        insights = self.llm(prompt)
 
 
 
-        print(f'generation: {insight}')
+        print(f'generation: {insights}')
 
-        self.insights.append(insight)
+        self.insights.append(insights)
 
         # did you get a reward 
         # is reward negative or positive
@@ -183,9 +152,6 @@ class LLM_Agent:
         
     def reflect_on_episode(self):
 
-        raise NotImplementedError
-
-        # self.insights = [""] 
         # self.hypothesis
         """ 
         Please make an hypothesis on the game rules based on the observations and rewards you received.
