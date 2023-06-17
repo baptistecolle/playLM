@@ -16,7 +16,7 @@ print_green = lambda x: cprint(x, "green", "on_red")
 print_red_on_cyan = lambda x: cprint(x, "red", "on_cyan")
 print_yellow = lambda x: cprint(x, "yellow", "on_blue")
 
-llm_type = "llama"
+llm_type = "wizard-vicuna-llama"
 
 metrics = {
     "llm_type": llm_type,
