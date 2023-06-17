@@ -20,9 +20,12 @@ We are using a high-level API for the LLama-based model. The API is downloaded w
 1. Create a folder `model` in the root directory 
 
 For the wizardLM model
+
 2. Go to https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main
 3. Download `wizardLM-7B.ggmlv3.q4_1.bin` model.
+
 For the LLama model
+
 4. Go to https://huggingface.co/TheBloke/LLaMa-7B-GGML/tree/main
 5. Download `llama-7b.ggmlv3.q4_1.bin` model
 
