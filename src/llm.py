@@ -1,6 +1,7 @@
 from llama_cpp import Llama
 import torch
 from transformers import GPTNeoForCausalLM, GPT2Tokenizer
+from transformers import pipeline
 
 
 class LLM:
@@ -9,13 +10,21 @@ class LLM:
 
         self.type = type
 
-        if type == "llama":
-            self.llm = Llama(model_path="./model/wizardLM-7B.ggmlv3.q4_1.bin", logits_all=True, verbose=False, n_ctx=2048)
-        elif type == "gpt3":
-            self.tokenizer = GPT2Tokenizer.from_pretrained("EleutherAI/gpt-neo-1.3B")
-            self.model = GPTNeoForCausalLM.from_pretrained("EleutherAI/gpt-neo-1.3B")
-        else:
-            raise Exception("LLM type not supported")
+        match type:
+            case "wizard-llama":
+                self.llm = Llama(model_path="./model/wizardLM-7B.ggmlv3.q4_1.bin", logits_all=True, verbose=False, n_ctx=2048)
+            case "llama":
+                self.llm = Llama(model_path="./model/llama-7b.ggmlv3.q4_1.bin", logits_all=True, verbose=False, n_ctx=2048)
+            case "wizard-vicuna-llama":
+                self.llm = Llama(model_path="./model/Wizard-Vicuna-7B-Uncensored.ggmlv3.q4_1.bin", logits_all=True, verbose=False, n_ctx=2048)
+            case "gpt3":
+                raise Exception("GPT3 is not supported anymore - because lack of GPU resources")
+                self.tokenizer = GPT2Tokenizer.from_pretrained("EleutherAI/gpt-neo-1.3B")
+                self.model = GPTNeoForCausalLM.from_pretrained("EleutherAI/gpt-neo-1.3B")
+                self.pipeline = pipeline('text-generation', model='EleutherAI/gpt-neo-2.7B')
+            case _:
+                raise Exception("LLM type not supported")
+
 
     def __call__(self, prompt):
         if self.type == "llama":
@@ -24,16 +33,24 @@ class LLM:
             gen_text = generation["choices"][0]["text"]
             return gen_text
         elif self.type == "gpt3":
-            input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
-            gen_tokens = self.model.generate(
-                input_ids,
-                do_sample=True,
-                temperature=0.9,
-                pad_token_id=self.tokenizer.eos_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
-                max_new_tokens=200,
-            )
-            gen_text = self.tokenizer.batch_decode(gen_tokens)[0]
+            # input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
+            # gen_tokens = self.model.generate(
+            #     input_ids,
+            #     do_sample=True,
+            #     temperature=0.9,
+            #     pad_token_id=self.tokenizer.eos_token_id,
+            #     eos_token_id=self.tokenizer.eos_token_id,
+            #     # max_new_tokens=200,
+            #     max_length=800,
+            # )
+            text = self.pipeline(prompt, min_length=len(prompt)+100, max_length=len(prompt)+200, do_sample=True)
+            print(f"text: {text}")
+            # get token after prompt
+            gen_text = text[len(prompt):]
+            print(f"gen_text: {gen_text}")
+            # keep only first 200 words
+            
+
             return gen_text
         else:
             raise Exception("LLM type not supported")
@@ -81,17 +98,17 @@ class LLM:
                 
             )
 
-            print(f"gen_tokens: {gen_tokens}")
+            # print(f"gen_tokens: {gen_tokens}")
 
             # for each word in the word set, get the probability of the word to be the next word using the scores of the generated token
             for word in word_set:
 
                 word_index = self.tokenizer.encode(word)[0]
-                print(gen_tokens['scores'][0].shape)
-                print(word_index)
+                # print(gen_tokens['scores'][0].shape)
+                # print(word_index)
                 word_score = gen_tokens['scores'][0][:, word_index]
                 word_score = word_score[0].item() if not torch.isinf(word_score[0]) else 0
-                print(f"word: {word}, word_score: {word_score}")
+                # print(f"word: {word}, word_score: {word_score}")
                 probs.append(word_score)
 
            

@@ -7,6 +7,7 @@ from termcolor import colored, cprint
 import sys
 import signal
 import pprint
+import time
 
 
 
@@ -15,17 +16,30 @@ print_green = lambda x: cprint(x, "green", "on_red")
 print_red_on_cyan = lambda x: cprint(x, "red", "on_cyan")
 print_yellow = lambda x: cprint(x, "yellow", "on_blue")
 
+llm_type = "llama"
+
 metrics = {
+    "llm_type": llm_type,
     "number_of_different_actions_taken": 0,
     "number_of_different_positions_visited": 0,
     "number_of_games_won": 0,
     "number_of_games_lost": 0,
-    "rewards_per_episode": [],
+    "cumulative_rewards_per_episode": [],
+    "rewards_in_episode": {},
+    "time_per_action": [],
+    "when_won": [],
+    "when_lost": [],
+
 }
 
 
 def signal_handler(sig, frame):
-    print('Exiting game')
+    print('Exiting game early due to ctrl+c')
+    pprint.pprint(metrics)
+    sys.exit(0)
+
+def timeout_handler(signum, frame):
+    print("Timeout")
     pprint.pprint(metrics)
     sys.exit(0)
 
@@ -33,7 +47,7 @@ def signal_handler(sig, frame):
 
 def run_game(env: gym.Env , agent: LLM_Agent, action_space):
 
-
+    start_episode_time = time.time()
     
     cumulative_reward = 0
     actions_taken = []
@@ -43,6 +57,8 @@ def run_game(env: gym.Env , agent: LLM_Agent, action_space):
         observation = env.reset()
         position = extract_player_position(env.render())
         agent.save_observation(position)
+
+        metrics["rewards_in_episode"][i_episode] = []
 
         # Loop over t timesteps 
         for t in range(20):
@@ -58,8 +74,15 @@ def run_game(env: gym.Env , agent: LLM_Agent, action_space):
             # Give the LLM some information about the current state of the game
 
             print_red_on_cyan("GENERATING ACTION")
+
+            start = time.time()
         
             action, action_word = agent.generate_action(debug=True)
+
+            end = time.time()
+            metrics["time_per_action"].append(end - start)
+
+
 
             if action_word not in actions_taken:
                 actions_taken.append(action_word)
@@ -71,6 +94,7 @@ def run_game(env: gym.Env , agent: LLM_Agent, action_space):
             # take action
             # Within the game board state
             obs, reward, terminated, truncated, info = env.step(action)
+            metrics["rewards_in_episode"][i_episode].append(reward)
 
             position = extract_player_position(env.render())
 
@@ -116,12 +140,14 @@ def run_game(env: gym.Env , agent: LLM_Agent, action_space):
                 if reward == 1:
                     metrics["number_of_games_won"] += 1
                     print_yellow("Episode won")
+                    metrics["when_won"].append(time.time() - start_episode_time)
                 elif reward == -1:
                     metrics["number_of_games_lost"] += 1
                     print_yellow("Episode lost")
+                    metrics["when_lost"].append(time.time() - start_episode_time)
 
                 print("Episode finished after {} timesteps".format(t+1))
-                metrics["rewards_per_episode"].append(cumulative_reward)
+                metrics["cumulative_rewards_per_episode"].append(cumulative_reward)
                 cumulative_reward = 0
                 
                 agent.reflect_on_episode()
@@ -139,7 +165,7 @@ def init():
     # to toggle to test the different LLM models
     # Choose which model to use
     # agent = LLM_Agent(type="llama") 
-    agent = LLM_Agent(type="gpt3") 
+    agent = LLM_Agent(type=llm_type) 
 
     action_space = [ 'left', 'down', 'right', 'up']
 
@@ -151,6 +177,10 @@ def init():
 
 def main():
     signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGALRM, timeout_handler)
+
+    signal.alarm(60 * 60)
+
  
     env, agent, action_space = init()
     run_game(env, agent, action_space)

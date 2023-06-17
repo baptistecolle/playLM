@@ -12,6 +12,7 @@ class LLM_Agent:
 
     def __init__(self, type):
         self.llm = LLM(type=type)
+        self.type = type
         #, logits_all=True
 
         # RL specific variables
@@ -81,11 +82,14 @@ class LLM_Agent:
         """
 
     def get_action_prompt(self):
+
+        subset_insights = self.insights[-10:] if self.type == "llm" else self.insights[-1:] # because context window size is limited
+
         prompt = (
             f"""
             {self.get_base_prompt()}
             This is a list of your insights based on each move you have made, try to learn from them before making your next move:
-            {' '.join(self.insights)}
+            {' '.join(subset_insights)}
             What direction should the player move? 
             Answer:
             """
@@ -156,11 +160,14 @@ class LLM_Agent:
         """ 
         Please make an hypothesis on the game rules based on the observations and rewards you received.
         """
-        pass
+        self.observations = self.observations[-1:]
+        self.rewards = []
+        self.positions = []
+        self.actions_taken = []
 
-    def reflect_on_game(self):
-        pass
-    
+
+
+
     def generate_action(self, debug=False):
 
         action_word = self.get_action_prompt()

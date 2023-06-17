@@ -21,5 +21,7 @@ We are using a high-level API for the LLama-based model. The API is downloaded w
 2. Download `wizardLM-7B.ggmlv3.q4_1.bin` model.
 3. Create a folder `model` (if it does not exist and place the model inside of the folder.
 
+https://huggingface.co/TheBloke/LLaMa-7B-GGML
+
 ### Downloading the GPT-3 replication
 
