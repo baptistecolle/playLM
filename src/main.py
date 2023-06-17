@@ -127,9 +127,8 @@ def run_game(env: gym.Env , agent: LLM_Agent, action_space):
                 agent.reflect_on_episode()
 
 def init():
-    # launch adventure environment with human rendering
+    # Launch adventure environment with human rendering
     env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False, render_mode="ansi")
-    # todo make this random maps
     # render_mode="rgb_array"
     env.reset()
 
@@ -138,8 +137,9 @@ def init():
     number_of_actions = env.action_space.n
 
     # to toggle to test the different LLM models
-    agent = LLM_Agent(type="llama") 
-    # agent = LLM_Agent(type="gpt3") 
+    # Choose which model to use
+    # agent = LLM_Agent(type="llama") 
+    agent = LLM_Agent(type="gpt3") 
 
     action_space = [ 'left', 'down', 'right', 'up']
 
@@ -151,7 +151,6 @@ def init():
 
 def main():
     signal.signal(signal.SIGINT, signal_handler)
-
  
     env, agent, action_space = init()
     run_game(env, agent, action_space)

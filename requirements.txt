@@ -1,0 +1,5 @@
+gymnasium
+llama-cpp-python
+torch
+termcolor
+transformers
