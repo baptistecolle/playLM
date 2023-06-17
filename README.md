@@ -16,18 +16,24 @@ There are two models, LLama-based model fine-tuned for instruction tuning and a 
 ### High-level API for LLama-based model
 We are using a high-level API for the LLama-based model. The API is downloaded with all the dependencies when running the code for the first time. The reposority is located at https://github.com/abetlen/llama-cpp-python
 
-### Downloading the LLama-based models
-1. Create a folder `model` in the root directory 
+## Downloading the LLama-based models
+Create a folder `model` in the root directory 
 
-For the wizardLM model
+### For the wizardLM model
 
-2. Go to https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main
-3. Download `wizardLM-7B.ggmlv3.q4_1.bin` model.
+1. Go to https://huggingface.co/TheBloke/wizardLM-7B-GGML/tree/main
 
-For the LLama model
+2. Download `wizardLM-7B.ggmlv3.q4_1.bin` model.
 
-4. Go to https://huggingface.co/TheBloke/LLaMa-7B-GGML/tree/main
-5. Download `llama-7b.ggmlv3.q4_1.bin` model
+3. Place the downloaded model in the `model` folder.
+
+### For the LLama model
+
+1. Go to https://huggingface.co/TheBloke/LLaMa-7B-GGML/tree/main
+   
+2. Download `llama-7b.ggmlv3.q4_1.bin` model
+
+3. Place the downloaded model in the `model` folder.
 
 
 
